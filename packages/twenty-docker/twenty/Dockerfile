@@ -16,8 +16,9 @@ COPY ./packages/twenty-shared/package.json /app/packages/twenty-shared/
 COPY ./packages/twenty-front/package.json /app/packages/twenty-front/
 COPY ./packages/twenty-sdk/package.json /app/packages/twenty-sdk/
 
-# Install all dependencies
-RUN yarn && yarn cache clean && npx nx reset
+# Install all dependencies. Railway Free has a tight build timeout, so avoid
+# extra cleanup/reset work in this throwaway build stage.
+RUN yarn
 
 
 # Build the back
@@ -48,9 +49,6 @@ RUN npx nx build twenty-front
 
 # Final stage: Run the application
 FROM node:24-alpine AS twenty
-
-# Used to run healthcheck in docker
-RUN apk add --no-cache curl jq
 
 RUN npm install -g tsx
 
